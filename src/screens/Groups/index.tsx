@@ -1,14 +1,18 @@
-import { Container, Title } from "./styles";
+import { Header } from "@components/Header";
+import { Container } from "./styles";
+import { Highlight } from "@components/Highlight";
+import { GroupCard } from "@components/GroupCard";
 
 export function Groups() {
   return (
     <Container>
-      <Title>Groups</Title>
-      <Title>Groups</Title>
-      <Title>Groups</Title>
-      <Title>Groups</Title>
-      <Title>Groups</Title>
-      <Title>Groups</Title>
+      <Header />
+      <Highlight
+        title="Clínicas"
+        subtitle="Escolha uma clínica para ver os pacientes"
+      />
+
+      <GroupCard title="Alfa" />
     </Container>
   );
 }
