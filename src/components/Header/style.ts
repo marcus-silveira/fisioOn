@@ -10,6 +10,7 @@ export const Container = styled.View`
 `;
 
 export const Logo = styled.Image`
+  border-radius: 35px;
   width: 46px;
   width: 55px;
 `;
