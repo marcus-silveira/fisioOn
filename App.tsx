@@ -7,6 +7,7 @@ import {
 } from "@expo-google-fonts/roboto";
 import theme from "./src/theme";
 
+import { NewGroup } from "@screens/NewGroup";
 import { Groups } from "@screens/Groups";
 import { Loading } from "@components/Loading";
 
