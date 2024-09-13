@@ -21,7 +21,7 @@ export default function App() {
         backgroundColor={"transparent"}
         translucent
       />
-      {fontsLoaded ? <Patients /> : <Loading />}
+      {fontsLoaded ? <Groups /> : <Loading />}
     </ThemeProvider>
   );
 }

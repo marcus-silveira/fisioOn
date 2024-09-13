@@ -10,9 +10,10 @@ export const Container = styled.View`
 `;
 
 export const Logo = styled.Image`
+  /* border-radius: 12px; */
   margin-top: 10px;
-  width: 46px;
-  width: 55px;
+  /* width: 46px;
+  width: 55px; */
 `;
 
 export const BackButton = styled.TouchableOpacity`
