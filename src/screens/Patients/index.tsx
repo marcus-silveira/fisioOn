@@ -11,15 +11,23 @@ import { Filter } from "@components/Filter";
 import { PatientsCard } from "@components/PatientsCard";
 import { ListEmpty } from "@components/ListEmpty";
 import { Button } from "@components/Button";
+import { useRoute } from "@react-navigation/native";
+
+type RouteParams = {
+  group: string;
+};
 
 export function Patients() {
   const [days, setDays] = useState("SEGUNDA");
   const [Patients, setPatients] = useState(["Enio", "Lucas", "João"]);
 
+  const route = useRoute();
+  const { group } = route.params as RouteParams;
+
   return (
     <Container>
       <Header showBackButton />
-      <Highlight title="Catamarca" subtitle="adicione seus pacientes" />
+      <Highlight title={group} subtitle="adicione seus pacientes" />
       <Form>
         <Input placeholder="Nome do paciente" autoCorrect={false} />
         <ButtonIcon icon="add" />
