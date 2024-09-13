@@ -1,8 +1,8 @@
 import { Header } from "@components/Header";
 import { Highlight } from "@components/Highlight";
 
-import { useState } from "react";
-import { FlatList } from "react-native";
+import { useState, useEffect } from "react";
+import { FlatList, Alert } from "react-native";
 
 import { Container, Form, HeaderList, NumberOfPatients } from "./style";
 import { ButtonIcon } from "@components/ButtonIcon";
@@ -12,25 +12,77 @@ import { PatientsCard } from "@components/PatientsCard";
 import { ListEmpty } from "@components/ListEmpty";
 import { Button } from "@components/Button";
 import { useRoute } from "@react-navigation/native";
+import { patientAddByGroup } from "@storage/patient/PatientAddByGroup";
+import { patientsGetByGroup } from "@storage/patient/patientsGetByGroup";
+import { AppError } from "@utils/AppError";
+import { patientsGetByGroupAndDay } from "@storage/patient/patientsGetByGroupAndDay";
+import { PatientStorageDTO } from "@storage/patient/PatientStorageDTO";
 
 type RouteParams = {
   group: string;
 };
 
 export function Patients() {
-  const [days, setDays] = useState("SEGUNDA");
-  const [Patients, setPatients] = useState(["Enio", "Lucas", "João"]);
+  const [newPatientName, setNewPatientName] = useState("");
+  const [day, setDays] = useState("SEGUNDA");
+  const [Patients, setPatients] = useState<PatientStorageDTO[]>([]);
 
   const route = useRoute();
+
   const { group } = route.params as RouteParams;
 
+  async function handleAddPatient() {
+    if (newPatientName.trim().length === 0) {
+      return Alert.alert(
+        "Novo paciente",
+        "Informe o nome do paciente para adicionar."
+      );
+    }
+
+    const newPatient = {
+      name: newPatientName.trim(),
+      day: day,
+    };
+
+    try {
+      await patientAddByGroup(newPatient, group);
+      await fetchPatientsByDay();
+    } catch (error) {
+      if (error instanceof AppError) {
+        Alert.alert("Novo paciente", error.message);
+      } else {
+        console.log(error);
+        Alert.alert("Novo paciente", "Não foi possível adicionar.");
+      }
+    }
+  }
+
+  async function fetchPatientsByDay() {
+    try {
+      const patientsByDay = await patientsGetByGroupAndDay(group, day);
+      setPatients(patientsByDay);
+    } catch (error) {
+      console.log(error);
+      Alert.alert(
+        "Pacientes",
+        "Não foi possível carregar os pacientes da clínica selecionada."
+      );
+    }
+  }
+  useEffect(() => {
+    fetchPatientsByDay();
+  }, [day]);
   return (
     <Container>
       <Header showBackButton />
       <Highlight title={group} subtitle="adicione seus pacientes" />
       <Form>
-        <Input placeholder="Nome do paciente" autoCorrect={false} />
-        <ButtonIcon icon="add" />
+        <Input
+          placeholder="Nome do paciente"
+          onChangeText={setNewPatientName}
+          autoCorrect={false}
+        />
+        <ButtonIcon icon="add" onPress={handleAddPatient} />
       </Form>
 
       <HeaderList>
@@ -40,7 +92,7 @@ export function Patients() {
           renderItem={({ item }) => (
             <Filter
               title={item}
-              isActive={item === days}
+              isActive={item === day}
               onPress={() => setDays(item)}
             />
           )}
@@ -51,12 +103,12 @@ export function Patients() {
       </HeaderList>
       <FlatList
         data={Patients}
-        keyExtractor={(item) => item}
+        keyExtractor={(item) => item.name}
         renderItem={({ item }) => (
-          <PatientsCard name={item} onRemove={() => {}} />
+          <PatientsCard name={item.name} onRemove={() => {}} />
         )}
         ListEmptyComponent={() => (
-          <ListEmpty message="Não há pessoas nesse time" />
+          <ListEmpty message="Não há pacientes nessa clínica" />
         )}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[
