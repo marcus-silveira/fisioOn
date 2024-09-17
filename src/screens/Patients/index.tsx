@@ -19,12 +19,14 @@ import { patientsGetByGroupAndDay } from "@storage/patient/patientsGetByGroupAnd
 import { PatientStorageDTO } from "@storage/patient/PatientStorageDTO";
 import { patientRemoveByGroup } from "@storage/patient/patientRemoveByGroup";
 import { groupRemoveByName } from "@storage/group/groupRemoveByName";
+import { Loading } from "@components/Loading";
 
 type RouteParams = {
   group: string;
 };
 
 export function Patients() {
+  const [isLoading, setIsLoading] = useState(true);
   const [newPatientName, setNewPatientName] = useState("");
   const [day, setDays] = useState("SEGUNDA");
   const [Patients, setPatients] = useState<PatientStorageDTO[]>([]);
@@ -90,7 +92,7 @@ export function Patients() {
   }
 
   async function handleGroupRemove() {
-    Alert.alert("Remover", "Deseja remover o grupo?", [
+    Alert.alert("Remover", "Deseja remover esta Clínica ?", [
       { text: "Não", style: "cancel" },
       { text: "Sim", onPress: () => groupRemove() },
     ]);
@@ -98,14 +100,18 @@ export function Patients() {
 
   async function fetchPatientsByDay() {
     try {
+      setIsLoading(true);
       const patientsByDay = await patientsGetByGroupAndDay(group, day);
       setPatients(patientsByDay);
+      setIsLoading(false);
     } catch (error) {
       console.log(error);
       Alert.alert(
         "Pacientes",
         "Não foi possível carregar os pacientes da clínica selecionada."
       );
+    } finally {
+      setIsLoading(false);
     }
   }
   useEffect(() => {
@@ -144,26 +150,34 @@ export function Patients() {
 
         {/* <NumberOfPatients>{Patients.length}</NumberOfPatients> */}
       </HeaderList>
-      <FlatList
-        data={Patients}
-        keyExtractor={(item) => item.name}
-        renderItem={({ item }) => (
-          <PatientsCard
-            name={item.name}
-            onRemove={() => handlePatientRemove(item.name)}
-          />
-        )}
-        ListEmptyComponent={() => (
-          <ListEmpty message="Não há pacientes nessa clínica" />
-        )}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={[
-          { paddingBottom: 100 },
-          Patients.length === 0 && { flex: 1 },
-        ]}
-      />
+      {isLoading ? (
+        <Loading />
+      ) : (
+        <FlatList
+          data={Patients}
+          keyExtractor={(item) => item.name}
+          renderItem={({ item }) => (
+            <PatientsCard
+              name={item.name}
+              onRemove={() => handlePatientRemove(item.name)}
+            />
+          )}
+          ListEmptyComponent={() => (
+            <ListEmpty message="Não há pacientes nessa clínica" />
+          )}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={[
+            { paddingBottom: 100 },
+            Patients.length === 0 && { flex: 1 },
+          ]}
+        />
+      )}
 
-      <Button title="Remover Clínica" type="SECONDARY" />
+      <Button
+        title="Remover Clínica"
+        type="SECONDARY"
+        onPress={handleGroupRemove}
+      />
     </Container>
   );
 }
