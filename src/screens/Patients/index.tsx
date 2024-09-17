@@ -29,7 +29,7 @@ export function Patients() {
   const [isLoading, setIsLoading] = useState(true);
   const [newPatientName, setNewPatientName] = useState("");
   const [day, setDays] = useState("SEGUNDA");
-  const [Patients, setPatients] = useState<PatientStorageDTO[]>([]);
+  const [patients, setPatients] = useState<PatientStorageDTO[]>([]);
 
   const route = useRoute();
   const navigation = useNavigation();
@@ -77,6 +77,24 @@ export function Patients() {
       Alert.alert(
         "Remover paciente",
         "Não foi possível remover esse paciente."
+      );
+    }
+  }
+
+  async function handlePatientCheck(patientName: string) {
+    try {
+      setPatients((prevPatients) =>
+        prevPatients.map((patient) =>
+          patient.name === patientName
+            ? { ...patient, isChecked: !patient.isChecked }
+            : patient
+        )
+      );
+    } catch (error) {
+      console.log(error);
+      Alert.alert(
+        "Checar paciente",
+        "Não foi possível marcar o paciente como checado."
       );
     }
   }
@@ -154,11 +172,13 @@ export function Patients() {
         <Loading />
       ) : (
         <FlatList
-          data={Patients}
+          data={patients}
           keyExtractor={(item) => item.name}
           renderItem={({ item }) => (
             <PatientsCard
               name={item.name}
+              isChecked={item.isChecked} // Passa a nova propriedade isChecked
+              onCheck={() => handlePatientCheck(item.name)}
               onRemove={() => handlePatientRemove(item.name)}
             />
           )}
@@ -168,7 +188,7 @@ export function Patients() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={[
             { paddingBottom: 100 },
-            Patients.length === 0 && { flex: 1 },
+            patients.length === 0 && { flex: 1 },
           ]}
         />
       )}

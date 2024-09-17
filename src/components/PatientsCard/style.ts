@@ -8,16 +8,18 @@ export const Container = styled.View`
   border-radius: 6px;
   flex-direction: row;
   align-items: center;
-
   margin-bottom: 16px;
 `;
 
-export const Name = styled.Text`
+// Modificando o estilo de Name
+export const Name = styled.Text<{ isChecked: boolean }>`
   flex: 1;
-  ${({ theme }) => css`
+
+  ${({ theme, isChecked }) => css`
     font-size: ${theme.FONT_SIZE.MD}px;
-    color: ${theme.COLORS.GRAY_200};
     font-family: ${theme.FONT_FAMILY.REGULAR};
+    color: ${isChecked ? theme.COLORS.GRAY_300 : theme.COLORS.GRAY_200};
+    text-decoration-line: ${isChecked ? "line-through" : ""};
   `}
 `;
 
